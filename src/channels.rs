@@ -8,35 +8,45 @@ trait Event : Sized {
     fn run();
 }
 
-fn main() {
-    // Channels have two endpoints: the `Sender<T>` and the `Receiver<T>`,
-    // where `T` is the type of the message to be transferred
-    // (type annotation is superfluous)
-    let (tx, rx): (Sender<Box<Fn()+Send>>, Receiver<Box<Fn()+Send>>) = mpsc::channel();
+struct Fiber {
+    sender: Sender<Box<Fn()->bool+Send>>,
+}
 
-    for id in 0..NTHREADS {
-        // The sender endpoint can be copied
-        let thread_tx = tx.clone();
-
-        // Each thread will send its id via the channel
-        thread::spawn(move || {
-            let printer = move || println!("{:?}", id);
-            // The thread takes ownership over `thread_tx`
-            // Each thread queues a message in the channel
-            thread_tx.send(Box::new(printer)).unwrap();
-
-            // Sending is a non-blocking operation, the thread will continue
-            // immediately after sending its message
-            //println!("thread {} finished", id);
+impl Fiber {
+    fn new() -> Fiber {
+        let (tx, rx): (Sender<Box<Fn()->bool+Send>>, Receiver<Box<Fn()->bool+Send>>) = mpsc::channel();
+        let f= Fiber{sender:tx};
+        thread::spawn (move || {
+            while rx.recv().unwrap()() {
+            }
         });
+        return f;
     }
 
-    for _ in 0..NTHREADS {
-        // The `recv` method picks a message from the channel
-        // `recv` will block the current thread if there no messages available
-        rx.recv().unwrap()();
+    fn stop(&self) {
+        let (tx, rx): (Sender<bool>, Receiver<bool>) = mpsc::channel();
+        let end = move || {
+            tx.send(true).unwrap();
+            return false;
+        };
+        self.sender.send(Box::new(end)).unwrap();
+        rx.recv().unwrap();
+    }
+}
+
+fn main() {
+    let mut vec = Vec::new();
+    for id in 0..NTHREADS {
+        let f = Fiber::new();
+        let printer = move || {
+            println!("{:?}", id);
+            return true;
+        };
+        f.sender.send(Box::new(printer)).unwrap();
+        vec.push(f);
     }
 
-    // Show the order in which the messages were sent
-    //println!("{:?}", ids);
+    for f in vec {
+        f.stop();
+    }
 }
