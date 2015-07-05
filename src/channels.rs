@@ -4,10 +4,6 @@ use std::thread;
 
 static NTHREADS: i32 = 3;
 
-trait Event : Sized {
-    fn run();
-}
-
 struct Fiber {
     sender: Sender<Box<Fn()->bool+Send>>,
 }
