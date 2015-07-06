@@ -4,16 +4,27 @@ use std::thread;
 
 static NTHREADS: i32 = 3;
 
-struct Fiber {
-    sender: Sender<Box<Fn()->bool+Send>>,
+enum Events<T: 'static> {
+    Task(Box<Fn()->bool+Send>),
+    Data(T)
 }
 
-impl Fiber {
-    fn new() -> Fiber {
-        let (tx, rx): (Sender<Box<Fn()->bool+Send>>, Receiver<Box<Fn()->bool+Send>>) = mpsc::channel();
+struct Fiber<T: 'static> {
+    sender: Sender<Events<T>>
+}
+
+impl <T: Send> Fiber<T> {
+    fn new() -> Fiber<T> {
+        let (tx, rx): (Sender<Events<T>>, Receiver<Events<T>>) = mpsc::channel();
         let f= Fiber{sender:tx};
         thread::spawn (move || {
-            while rx.recv().unwrap()() {
+            let mut running = true;
+            while running {
+                let event = rx.recv().unwrap();
+                match event {
+                    Events::Task(t) => running = t(),
+                    Events::Data(d) => println!("data")
+                }
             }
         });
         return f;
@@ -25,7 +36,7 @@ impl Fiber {
             tx.send(true).unwrap();
             return false;
         };
-        self.sender.send(Box::new(end)).unwrap();
+        self.sender.send(Events::Task(Box::new(end))).unwrap();
         rx.recv().unwrap();
     }
 }
@@ -33,12 +44,12 @@ impl Fiber {
 fn main() {
     let mut vec = Vec::new();
     for id in 0..NTHREADS {
-        let f = Fiber::new();
+        let f: (Fiber<i32>) = Fiber::new();
         let printer = move || {
             println!("{:?}", id);
             return true;
         };
-        f.sender.send(Box::new(printer)).unwrap();
+        f.sender.send(Events::Task(Box::new(printer))).unwrap();
         vec.push(f);
     }
 
