@@ -44,7 +44,7 @@ impl <T: Send> Fiber<T> {
 fn main() {
     let mut vec = Vec::new();
     for id in 0..NTHREADS {
-        let rcv_loop = move|data| {
+        let rcv_loop = |data| {
             println!("{:?}", data);
         };
         let f: (Fiber<i32>) = Fiber::new(Box::new(rcv_loop));
