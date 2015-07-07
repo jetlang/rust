@@ -14,7 +14,7 @@ struct Fiber<T: 'static> {
 }
 
 impl <T: Send> Fiber<T> {
-    fn new() -> Fiber<T> {
+    fn new(fun: Box<Fn(T) + Send>) -> Fiber<T> {
         let (tx, rx): (Sender<Events<T>>, Receiver<Events<T>>) = mpsc::channel();
         let f= Fiber{sender:tx};
         thread::spawn (move || {
@@ -23,7 +23,7 @@ impl <T: Send> Fiber<T> {
                 let event = rx.recv().unwrap();
                 match event {
                     Events::Task(t) => running = t(),
-                    Events::Data(d) => println!("data")
+                    Events::Data(d) => fun(d)
                 }
             }
         });
@@ -44,12 +44,16 @@ impl <T: Send> Fiber<T> {
 fn main() {
     let mut vec = Vec::new();
     for id in 0..NTHREADS {
-        let f: (Fiber<i32>) = Fiber::new();
+        let rcv_loop = move|data| {
+            println!("{:?}", data);
+        };
+        let f: (Fiber<i32>) = Fiber::new(Box::new(rcv_loop));
         let printer = move || {
             println!("{:?}", id);
             return true;
         };
         f.sender.send(Events::Task(Box::new(printer))).unwrap();
+        f.sender.send(Events::Data(id + 1000)).unwrap();
         vec.push(f);
     }
 
