@@ -40,7 +40,7 @@ impl <T: Send> Fiber<T> {
         let end = move || {
             return false;
         };
-        self.sender.send(Events::Task(Box::new(end))).unwrap();
+        self.send(Events::Task(Box::new(end)));
     }
 
     fn join(self) {
