@@ -31,15 +31,17 @@ impl <T: Send> Fiber<T> {
         return Fiber{sender:tx, t:t};
     }
 
-    fn stop(self, wait_for_thread_end: bool) {
+    fn send(&self, msg:Events<T>) {
+        self.sender.send(msg).unwrap();
+    }
+
+    fn stop(&self) {
         let end = move || {
             return false;
         };
         self.sender.send(Events::Task(Box::new(end))).unwrap();
-        if wait_for_thread_end {
-            self.join();
-        }
     }
+
     fn join(self) {
         self.t.join().unwrap();
     }
@@ -56,12 +58,16 @@ fn main() {
             println!("{:?}", id);
             return true;
         };
-        f.sender.send(Events::Task(Box::new(printer))).unwrap();
-        f.sender.send(Events::Data(id + 1000)).unwrap();
+        f.send(Events::Task(Box::new(printer)));
+        f.send(Events::Data(id + 1000));
         vec.push(f);
     }
 
-    for f in vec {
-        f.stop(true);
+    for f in &vec {
+        f.stop();
+    }
+
+    for g in vec {
+        g.join();
     }
 }
