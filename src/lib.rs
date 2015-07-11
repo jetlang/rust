@@ -19,18 +19,24 @@ impl <T: Send> Fiber<T> {
     fn new<F>(fun: F) -> Fiber<T>
         where  F: Send + 'static + Fn(T),{
         let (tx, rx): (Sender<Events<T>>, Receiver<Events<T>>) = mpsc::channel();
-        let t = thread::spawn (move || {
-            let mut running = true;
-            while running {
-                let event = rx.recv().unwrap();
-                match event {
-                    Events::Task(t) => running = t(),
-                    Events::Data(d) => fun(d)
-                }
-            }
-        });
-        return Fiber{sender:tx, t:t};
+        return Fiber::new_from_channel(fun, tx, rx);
     }
+
+    fn new_from_channel<F>(fun:F, sen:Sender<Events<T>>, rcv: Receiver<Events<T>>) -> Fiber<T>
+        where  F: Send + 'static + Fn(T),{
+            let t = thread::spawn (move || {
+                let mut running = true;
+                while running {
+                    let event = rcv.recv().unwrap();
+                    match event {
+                        Events::Task(t) => running = t(),
+                        Events::Data(d) => fun(d)
+                    }
+                }
+            });
+            return Fiber{sender:sen, t:t};
+        }
+
 
     fn send(&self, msg:Events<T>) {
         self.sender.send(msg).unwrap();
@@ -47,6 +53,7 @@ impl <T: Send> Fiber<T> {
         self.t.join().unwrap();
     }
 }
+
 #[test]
 fn basic() {
     let mut vec = Vec::new();
