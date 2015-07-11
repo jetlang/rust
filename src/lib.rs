@@ -2,18 +2,19 @@ use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
 use std::thread;
 
-static NTHREADS: i32 = 3;
-
+#[allow(dead_code)]
 enum Events<T: 'static> {
     Task(Box<Fn()->bool+Send>),
     Data(T)
 }
 
+#[allow(dead_code)]
 struct Fiber<T: 'static> {
     sender: Sender<Events<T>>,
     t: std::thread::JoinHandle<()>
 }
 
+#[allow(dead_code)]
 impl <T: Send> Fiber<T> {
     fn new<F>(fun: F) -> Fiber<T>
         where  F: Send + 'static + Fn(T),{
@@ -46,10 +47,10 @@ impl <T: Send> Fiber<T> {
         self.t.join().unwrap();
     }
 }
-
-fn main() {
+#[test]
+fn it_works() {
     let mut vec = Vec::new();
-    for id in 0..NTHREADS {
+    for id in 0..3 {
         let rcv_loop = |data| {
             println!("{:?}", data);
         };
