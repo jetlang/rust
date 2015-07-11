@@ -36,7 +36,7 @@ impl <T: Send> Fiber<T> {
         self.sender.send(msg).unwrap();
     }
 
-    fn stop(&self) {
+    fn send_stop(&self) {
         let end = move || {
             return false;
         };
@@ -48,7 +48,7 @@ impl <T: Send> Fiber<T> {
     }
 }
 #[test]
-fn it_works() {
+fn basic() {
     let mut vec = Vec::new();
     for id in 0..3 {
         let rcv_loop = |data| {
@@ -65,7 +65,7 @@ fn it_works() {
     }
 
     for f in &vec {
-        f.stop();
+        f.send_stop();
     }
 
     for g in vec {
