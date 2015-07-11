@@ -6,7 +6,7 @@ use jetlang::{Fiber, Events};
 fn basic() {
     let mut vec = Vec::new();
     for id in 0..3 {
-        let rcv_loop = |data| {
+        let rcv_loop = move |data: i32| {
             println!("{:?}", data);
         };
         let f = Fiber::new(rcv_loop);
@@ -15,7 +15,7 @@ fn basic() {
             return true;
         };
         f.send(Events::Task(Box::new(printer)));
-        f.send(Events::Data(id + 1000));
+        f.send_data((id + 1000));
         vec.push(f);
     }
 

@@ -39,6 +39,10 @@ impl <T: Send> Fiber<T> {
         self.sender.send(msg).unwrap();
     }
 
+    pub fn send_data(&self, f: T){
+        self.send(Events::Data(f));
+    }
+
     pub fn send_stop(&self) {
         let end = move || {
             return false;
