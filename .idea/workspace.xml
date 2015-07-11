@@ -28,8 +28,8 @@
       <file leaf-file-name="channels.rs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/channels.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4521625">
-              <caret line="30" column="37" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
+            <state vertical-scroll-proportion="0.46920052">
+              <caret line="43" column="18" selection-start-line="43" selection-start-column="18" selection-end-line="43" selection-end-column="18" />
               <folding />
             </state>
           </provider>
@@ -332,7 +332,13 @@
       <option name="project" value="LOCAL" />
       <updated>1436239328457</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="simple fiber.">
+      <created>1436625264614</created>
+      <option name="number" value="00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1436625264614</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -394,8 +400,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/channels.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4521625">
-          <caret line="30" column="37" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
+        <state vertical-scroll-proportion="0.46920052">
+          <caret line="43" column="18" selection-start-line="43" selection-start-column="18" selection-end-line="43" selection-end-column="18" />
           <folding />
         </state>
       </provider>

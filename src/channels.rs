@@ -31,12 +31,14 @@ impl <T: Send> Fiber<T> {
         return Fiber{sender:tx, t:t};
     }
 
-    fn stop(self) {
+    fn stop(self, wait_for_thread_end: bool) {
         let end = move || {
             return false;
         };
         self.sender.send(Events::Task(Box::new(end))).unwrap();
-        self.join();
+        if wait_for_thread_end {
+            self.join();
+        }
     }
     fn join(self) {
         self.t.join().unwrap();
@@ -60,6 +62,6 @@ fn main() {
     }
 
     for f in vec {
-        f.stop();
+        f.stop(true);
     }
 }
