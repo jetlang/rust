@@ -10,15 +10,15 @@ enum Events<T: 'static> {
 }
 
 struct Fiber<T: 'static> {
-    sender: Sender<Events<T>>
+    sender: Sender<Events<T>>,
+    t: std::thread::JoinHandle<()>
 }
 
 impl <T: Send> Fiber<T> {
     fn new<F>(fun: F) -> Fiber<T>
         where  F: Send + 'static + Fn(T),{
         let (tx, rx): (Sender<Events<T>>, Receiver<Events<T>>) = mpsc::channel();
-        let f= Fiber{sender:tx};
-        thread::spawn (move || {
+        let t = thread::spawn (move || {
             let mut running = true;
             while running {
                 let event = rx.recv().unwrap();
@@ -28,17 +28,18 @@ impl <T: Send> Fiber<T> {
                 }
             }
         });
-        return f;
+        return Fiber{sender:tx, t:t};
     }
 
-    fn stop(&self) {
-        let (tx, rx): (Sender<bool>, Receiver<bool>) = mpsc::channel();
+    fn stop(self) {
         let end = move || {
-            tx.send(true).unwrap();
             return false;
         };
         self.sender.send(Events::Task(Box::new(end))).unwrap();
-        rx.recv().unwrap();
+        self.join();
+    }
+    fn join(self) {
+        self.t.join().unwrap();
     }
 }
 

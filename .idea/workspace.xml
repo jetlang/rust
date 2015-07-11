@@ -28,8 +28,8 @@
       <file leaf-file-name="channels.rs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/channels.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.37090433">
-              <caret line="21" column="27" selection-start-line="21" selection-start-column="27" selection-end-line="21" selection-end-column="27" />
+            <state vertical-scroll-proportion="0.4521625">
+              <caret line="30" column="37" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
               <folding />
             </state>
           </provider>
@@ -308,7 +308,31 @@
       <option name="project" value="LOCAL" />
       <updated>1436126732017</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="simple fiber.">
+      <created>1436225450724</created>
+      <option name="number" value="00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1436225450724</updated>
+    </task>
+    <task id="LOCAL-00004" summary="simple fiber.">
+      <created>1436227893537</created>
+      <option name="number" value="00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1436227893537</updated>
+    </task>
+    <task id="LOCAL-00005" summary="simple fiber.">
+      <created>1436237874675</created>
+      <option name="number" value="00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1436237874675</updated>
+    </task>
+    <task id="LOCAL-00006" summary="simple fiber.">
+      <created>1436239328457</created>
+      <option name="number" value="00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1436239328457</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -370,8 +394,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/channels.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.37090433">
-          <caret line="21" column="27" selection-start-line="21" selection-start-column="27" selection-end-line="21" selection-end-column="27" />
+        <state vertical-scroll-proportion="0.4521625">
+          <caret line="30" column="37" selection-start-line="30" selection-start-column="37" selection-end-line="30" selection-end-column="37" />
           <folding />
         </state>
       </provider>
