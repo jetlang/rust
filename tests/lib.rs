@@ -35,6 +35,37 @@ fn basic() {
     }
 }
 
+struct Stats {
+    count:i64,
+    total_duration:i64
+}
+
+#[test]
+fn latency(){
+    let runner = move|| {
+      let mut stats = Stats{count:0, total_duration:0};
+      return move|data: Events<i64>| {
+        match data {
+            Events::Stop=> {
+                println!("latency avg: {:?}", (stats.total_duration/stats.count));
+                return false;
+            },
+            Events::Data(d)=>{
+                stats.count += 1;
+                stats.total_duration += d;
+                return true;
+            }
+        }
+      };
+    };
+    let f = Fiber::new(runner);
+    f.send_data(5);
+    f.send_data(10);
+    f.send_stop();
+    f.join();
+}
+
+
 #[test]
 fn spawn(){
     let f = |vec: &mut Vec<i32>, id: i32| {
