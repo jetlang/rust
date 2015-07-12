@@ -3,7 +3,7 @@ use std::sync::mpsc;
 use std::thread;
 
 pub enum Events<T: 'static> {
-    Task(Box<Fn()->bool+Send>),
+    Stop,
     Data(T)
 }
 
@@ -13,25 +13,20 @@ pub struct Fiber<T: 'static> {
 }
 
 impl <T: Send> Fiber<T> {
-    pub fn new<F>(fun: F) -> Fiber<T>
-        where  F: Send + 'static + Fn(T),{
+    pub fn new<F, G>(fun: F) -> Fiber<T>
+        where
+        G: Send + 'static + FnMut(Events<T>)->bool,
+        F: Send + 'static + FnOnce()->G,{
         let (tx, rx): (Sender<Events<T>>, Receiver<Events<T>>) = mpsc::channel();
-        return Fiber::new_from_channel(fun, tx, rx);
-    }
-
-    pub fn new_from_channel<F>(fun:F, sen:Sender<Events<T>>, rcv: Receiver<Events<T>>) -> Fiber<T>
-        where  F: Send + 'static + Fn(T),{
             let t = thread::spawn (move || {
                 let mut running = true;
+                let mut runner = fun();
                 while running {
-                    let event = rcv.recv().unwrap();
-                    match event {
-                        Events::Task(t) => running = t(),
-                        Events::Data(d) => fun(d)
-                    }
+                    let event = rx.recv().unwrap();
+                    running = runner(event);
                 }
             });
-            return Fiber{sender:sen, t:t};
+            return Fiber{sender:tx, t:t};
         }
 
 
@@ -44,10 +39,7 @@ impl <T: Send> Fiber<T> {
     }
 
     pub fn send_stop(&self) {
-        let end = move || {
-            return false;
-        };
-        self.send(Events::Task(Box::new(end)));
+        self.send(Events::Stop);
     }
 
     pub fn join(self) {
