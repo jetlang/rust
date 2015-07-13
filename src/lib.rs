@@ -26,7 +26,7 @@ impl <T: Send> Fiber<T> {
                     running = runner(event);
                 }
             });
-            return Fiber{sender:tx, t:t};
+            Fiber{sender:tx, t:t}
         }
 
     pub fn clone_sender(&self)->Sender<Events<T>>{
