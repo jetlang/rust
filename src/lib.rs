@@ -29,6 +29,10 @@ impl <T: Send> Fiber<T> {
             return Fiber{sender:tx, t:t};
         }
 
+    pub fn clone_sender(&self)->Sender<Events<T>>{
+        self.sender.clone()
+     }
+
 
     pub fn send(&self, msg:Events<T>) {
         self.sender.send(msg).unwrap();
