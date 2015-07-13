@@ -1,4 +1,5 @@
 extern crate jetlang;
+extern crate time;
 
 use jetlang::{Fiber, Events};
 use std::thread;
@@ -8,14 +9,14 @@ fn basic() {
     let mut vec = Vec::new();
     for id in 0..3 {
         let runner = move || {
-            let mut vSize :Vec<i32> = Vec::new();
+            let mut v :Vec<i32> = Vec::new();
             return move |data: Events<i32>| {
                 match data {
                     Events::Stop=> return false,
                     Events::Data(d)=> {
-                        vSize.push(d);
+                        v.push(d);
                         println!("{:?}", d);
-                        println!("{:?}", vSize.len());
+                        println!("{:?}", v.len());
                         return true;
                     }
                 }
@@ -36,15 +37,15 @@ fn basic() {
 }
 
 struct Stats {
-    count:i64,
-    total_duration:i64
+    count:u64,
+    total_duration:u64
 }
 
 #[test]
 fn latency(){
     let runner = move|| {
       let mut stats = Stats{count:0, total_duration:0};
-      return move|data: Events<i64>| {
+      return move|data: Events<u64>| {
         match data {
             Events::Stop=> {
                 println!("latency avg: {:?}", (stats.total_duration/stats.count));
@@ -52,15 +53,16 @@ fn latency(){
             },
             Events::Data(d)=>{
                 stats.count += 1;
-                stats.total_duration += d;
+                stats.total_duration += time::precise_time_ns() - d;
                 return true;
             }
         }
       };
     };
     let f = Fiber::new(runner);
-    f.send_data(5);
-    f.send_data(10);
+    for _ in 0..100 {
+        f.send_data(time::precise_time_ns());
+    }
     f.send_stop();
     f.join();
 }
