@@ -1,5 +1,6 @@
 extern crate jetlang;
 extern crate time;
+extern crate syncbox;
 
 use jetlang::{Fiber, Events};
 use std::thread;
@@ -64,6 +65,31 @@ fn latency(){
         f.send_data(time::precise_time_ns());
     }
     f.send_stop();
+    f.join();
+}
+
+#[test]
+fn scheduled_event_using_syncbox(){
+    let runner = move|| {
+        return move|data: Events<u64>| {
+          match data {
+              Events::Stop=> {
+                  return false;
+              },
+              Events::Data(d)=>{
+                  return d != 7;
+              }
+          }
+        };
+    };
+    let f = Fiber::new(runner);
+    let sender = f.clone_sender();
+    let sched = syncbox::ScheduledThreadPool::single_thread();
+
+    let t = move || {
+       sender.send(Events::Data(7)).unwrap();
+    };
+    sched.schedule_ms(1,t);
     f.join();
 }
 
